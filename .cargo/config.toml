@@ -1,0 +1,12 @@
+[target.'cfg(all(target_arch = "arm", target_os = "none"))']
+runner = "probe-rs run --chip STM32F303VCTx"
+
+[build]
+target = "thumbv7em-none-eabihf"
+
+[profile.release]
+# Allows defmt to display log locations even in release
+debug = true
+
+[env]
+DEFMT_LOG = "trace"
