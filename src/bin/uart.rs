@@ -7,7 +7,7 @@ use core::str::from_utf8_unchecked;
 use futures::join;
 
 use defmt::*;
-use heapless::{String, Vec};
+use heapless::String;
 use embassy_executor::Spawner;
 use embassy_stm32::bind_interrupts;
 use embassy_stm32::peripherals;
@@ -25,11 +25,11 @@ async fn main(_spawner: Spawner) {
     info!("Hello World!");
 
     let config = Config::default();
-    let mut usart = Uart::new(p.USART1, p.PE1, p.PE0, Irqs, p.DMA1_CH4, p.DMA1_CH5, config).unwrap();
+    let usart = Uart::new(p.USART1, p.PE1, p.PE0, Irqs, p.DMA1_CH4, p.DMA1_CH5, config).unwrap();
 
     let (tx, rx) = usart.split();
 
-    let mut send = || async {
+    let send = || async {
         let mut tx = tx;
         let mut s: String<128> = String::new();
     
@@ -43,7 +43,7 @@ async fn main(_spawner: Spawner) {
         }
     };
 
-    let mut recv = || async {
+    let recv = || async {
         let mut rx = rx;
         let mut s = [0u8; 128];
     
