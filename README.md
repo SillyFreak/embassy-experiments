@@ -20,7 +20,7 @@ Also, you will naturally need an STM32F3 Discovery board.
 Several programs are contained in `src/bin/`. For example, to run the `hello.rs` program, execute this command:
 
 ```sh
-cargo run --bin hello
+cargo run --release --bin hello
 ```
 
 The programs are based on and inspired by Embassy's [stm32f3](https://github.com/embassy-rs/embassy/tree/main/examples/stm32f3/src/bin) and [stm32f4](https://github.com/embassy-rs/embassy/tree/main/examples/stm32f4/src/bin) examples.
