@@ -35,12 +35,14 @@ These programs work:
   [See this example](https://github.com/embassy-rs/embassy/blob/main/examples/stm32f3/src/bin/button_exti.rs)
 - **pwm**: controls an LED's brightness by varying its duty cycle.
   [See this example](https://github.com/embassy-rs/embassy/blob/main/examples/stm32f4/src/bin/pwm.rs)
+- **adc**: reads a voltage from one of the ADC capable pins periodically. Raw ADC values (0-4095) are shown, no voltage calibration is performed.
+  [See this example](https://github.com/embassy-rs/embassy/blob/main/examples/stm32f4/src/bin/adc.rs)
+
+  This example has been fixed by [anothersteven2](https://github.com/anotherstevest2/embassy-experiments). See their repo for a more complete example with voltage calibration and temperature reading.
 - **channel**: uses a Channel to communicate between two async tasks. If the receiver interval is larger than the sender interval, this will demonstrate backpressure.
 - **signal**: uses a Signal to communicate between two async tasks. If the receiver interval is larger than the sender interval, this will demonstrate overwriting without backpressure.
 
 These don't:
 
-- **adc**: should read a voltage from one of the ADC capable pins periodically. However, the program hangs at `Adc::new()`.
-  [See this example](https://github.com/embassy-rs/embassy/blob/main/examples/stm32f4/src/bin/adc.rs)
 - **uart**: when TX and RX (PE0, PE1) are connected, should echo the UART output. However, no data is received and printed (I have not yet explicitly tested if the data is sent correctly).
   [See this example](https://github.com/embassy-rs/embassy/blob/main/examples/stm32f4/src/bin/usart_dma.rs)
