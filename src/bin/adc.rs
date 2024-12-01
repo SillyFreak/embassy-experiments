@@ -1,13 +1,14 @@
 #![no_std]
 #![no_main]
+#![feature(impl_trait_in_assoc_type)]
 #![feature(type_alias_impl_trait)]
 
 use defmt::*;
 use embassy_executor::Spawner;
+use embassy_stm32::adc::{self, Adc};
 use embassy_stm32::bind_interrupts;
 // use embassy_stm32::gpio::low_level::Pin;
 use embassy_stm32::peripherals;
-use embassy_stm32::adc::{self, Adc};
 use embassy_time::{Delay, Duration, Timer};
 use {defmt_rtt as _, panic_probe as _};
 

@@ -1,5 +1,6 @@
 #![no_std]
 #![no_main]
+#![feature(impl_trait_in_assoc_type)]
 #![feature(type_alias_impl_trait)]
 
 use core::fmt::Write;
@@ -7,12 +8,12 @@ use core::str::from_utf8_unchecked;
 use futures::join;
 
 use defmt::*;
-use heapless::String;
 use embassy_executor::Spawner;
 use embassy_stm32::bind_interrupts;
 use embassy_stm32::peripherals;
 use embassy_stm32::usart::{self, Config, Uart};
 use embassy_time::{Duration, Timer};
+use heapless::String;
 use {defmt_rtt as _, panic_probe as _};
 
 bind_interrupts!(struct Irqs {
@@ -32,13 +33,13 @@ async fn main(_spawner: Spawner) {
     let send = || async {
         let mut tx = tx;
         let mut s: String<128> = String::new();
-    
+
         for n in 0u32.. {
             s.clear();
             core::write!(&mut s, "Hello DMA World {}!\r\n", n).unwrap();
             unwrap!(tx.write(s.as_bytes()).await);
             info!("wrote DMA");
-    
+
             Timer::after(Duration::from_millis(100)).await;
         }
     };
@@ -46,7 +47,7 @@ async fn main(_spawner: Spawner) {
     let recv = || async {
         let mut rx = rx;
         let mut s = [0u8; 128];
-    
+
         info!("waiting");
         loop {
             let len = unwrap!(rx.read_until_idle(&mut s).await);
@@ -55,8 +56,5 @@ async fn main(_spawner: Spawner) {
         }
     };
 
-    join!(
-        send(),
-        recv(),
-    );
+    join!(send(), recv());
 }

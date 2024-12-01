@@ -1,15 +1,14 @@
 #![no_std]
 #![no_main]
+#![feature(impl_trait_in_assoc_type)]
 #![feature(type_alias_impl_trait)]
 
 use futures::join;
 
 use defmt::*;
 use embassy_executor::Spawner;
-use embassy_sync::{
-    blocking_mutex::raw::*,
-    channel,
-};
+use embassy_sync::blocking_mutex::raw::*;
+use embassy_sync::channel;
 use embassy_time::{Duration, Timer};
 use {defmt_rtt as _, panic_probe as _};
 
