@@ -23,6 +23,41 @@ pub mod adxl345 {
     pub const READ: u8 = 1 << 7;
     pub const MULTI: u8 = 1 << 6;
 
+    pub mod register {
+        pub const DEVID: u8 = 0x00;
+        pub const POWER_CTL: u8 = 0x2D;
+        pub const DATA_FORMAT: u8 = 0x31;
+        pub const DATAX0: u8 = 0x32;
+        pub const DATAX1: u8 = 0x33;
+        pub const DATAY0: u8 = 0x34;
+        pub const DATAY1: u8 = 0x35;
+        pub const DATAZ0: u8 = 0x36;
+        pub const DATAZ1: u8 = 0x37;
+    }
+
+    pub mod power_ctl {
+        pub const LINK: u8 = 0b00_1000_00;
+        pub const AUTO_SLEEP: u8 = 0b00_0100_00;
+        pub const MEASURE: u8 = 0b00_0010_00;
+        pub const SLEEP: u8 = 0b00_0001_00;
+        pub const WAKEUP_1HZ: u8 = 0b00_0000_11;
+        pub const WAKEUP_4HZ: u8 = 0b00_0000_01;
+        pub const WAKEUP_2HZ: u8 = 0b00_0000_10;
+        pub const WAKEUP_8HZ: u8 = 0b00_0000_00;
+    }
+
+    pub mod data_format {
+        pub const SELF_TEST: u8 = 0b100_000_00;
+        pub const SPI: u8 = 0b010_000_00;
+        pub const INT_INVERT: u8 = 0b001_000_00;
+        pub const FULL_RES: u8 = 0b000_010_00;
+        pub const JUSTIFY: u8 = 0b000_001_00;
+        pub const RANGE_2G: u8 = 0b000_000_00;
+        pub const RANGE_4G: u8 = 0b000_000_01;
+        pub const RANGE_8G: u8 = 0b000_000_10;
+        pub const RANGE_16G: u8 = 0b000_000_11;
+    }
+
     pub struct Adxl345<'d, T: spi::Instance, Rx: spi::RxDma<T>, Tx: spi::TxDma<T>, NCS: gpio::Pin> {
         ncs: gpio::Output<'d, NCS>,
         spi: spi::Spi<'d, T, Tx, Rx>,
@@ -111,17 +146,27 @@ async fn main(_spawner: Spawner) {
     // let spi = Spi::new(p.SPI1, p.PB3, p.PB5, p.PB4, p.DMA1_CH3, p.DMA1_CH2, config);
     let mut accel = Adxl345::new(p.SPI1, p.PB3, p.PB5, p.PB4, p.DMA1_CH2, p.DMA1_CH3, p.PD6);
 
-    let id = unwrap!(accel.read_single(0x00).await);
+    let id = unwrap!(accel.read_single(adxl345::register::DEVID).await);
     info!("Device ID: {:X}", id);
 
     Timer::after(Duration::from_micros(1)).await;
 
-    unwrap!(accel.write_single(0x2D, 0x08).await);
+    unwrap!(accel.write_single(adxl345::register::POWER_CTL, {
+        use adxl345::power_ctl::*;
+        MEASURE | SLEEP | WAKEUP_8HZ
+    }).await);
+
+    Timer::after(Duration::from_micros(1)).await;
+
+    unwrap!(accel.write_single(adxl345::register::DATA_FORMAT, {
+        use adxl345::data_format::*;
+        FULL_RES | RANGE_2G
+    }).await);
 
     Timer::after(Duration::from_micros(1)).await;
 
     for _ in 0u32.. {
-        let data = unwrap!(accel.read::<6>(0x32).await);
+        let data = unwrap!(accel.read::<6>(adxl345::register::DATAX0).await);
         let x = i16::from_le_bytes(data[0..2].try_into().unwrap());
         let y = i16::from_le_bytes(data[2..4].try_into().unwrap());
         let z = i16::from_le_bytes(data[4..6].try_into().unwrap());
