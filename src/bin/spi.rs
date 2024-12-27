@@ -83,6 +83,16 @@ pub mod adxl345 {
 
             Ok(())
         }
+
+        pub async fn read_single(&mut self, address: u8) -> Result<u8, spi::Error> {
+            let [data] = self.read(address).await?;
+            Ok(data)
+        }
+
+        pub async fn write_single(&mut self, address: u8, data: u8) -> Result<(), spi::Error> {
+            self.write(&mut [address, data]).await?;
+            Ok(())
+        }
     }
 }
 
@@ -101,12 +111,12 @@ async fn main(_spawner: Spawner) {
     // let spi = Spi::new(p.SPI1, p.PB3, p.PB5, p.PB4, p.DMA1_CH3, p.DMA1_CH2, config);
     let mut accel = Adxl345::new(p.SPI1, p.PB3, p.PB5, p.PB4, p.DMA1_CH2, p.DMA1_CH3, p.PD6);
 
-    let [id] = unwrap!(accel.read(0x00).await);
+    let id = unwrap!(accel.read_single(0x00).await);
     info!("Device ID: {:X}", id);
 
     Timer::after(Duration::from_micros(1)).await;
 
-    unwrap!(accel.write(&mut [0x2D, 0x08]).await);
+    unwrap!(accel.write_single(0x2D, 0x08).await);
 
     Timer::after(Duration::from_micros(1)).await;
 
