@@ -167,10 +167,14 @@ async fn main(_spawner: Spawner) {
 
     for _ in 0u32.. {
         let data = unwrap!(accel.read::<6>(adxl345::register::DATAX0).await);
-        let x = i16::from_le_bytes(data[0..2].try_into().unwrap());
-        let y = i16::from_le_bytes(data[2..4].try_into().unwrap());
-        let z = i16::from_le_bytes(data[4..6].try_into().unwrap());
-        info!("Acceleration: ({}, {}, {})", x, y, z);
+        let x = i16::from_le_bytes(data[0..2].try_into().unwrap()) as isize;
+        let y = i16::from_le_bytes(data[2..4].try_into().unwrap()) as isize;
+        let z = i16::from_le_bytes(data[4..6].try_into().unwrap()) as isize;
+
+        // with FULL_RES, the acceleration is in 4milli-g steps
+        // multiply by four for a nice scale
+        let total = isize::isqrt(x*x + y*y + z*z) * 4;
+        info!("Acceleration: ({:04}, {:04}, {:04}) = {}.{:03}g", x, y, z, total/1000, total %1000);
 
         Timer::after(Duration::from_millis(200)).await;
     }
