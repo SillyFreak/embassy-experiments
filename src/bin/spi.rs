@@ -5,20 +5,12 @@
 
 use defmt::*;
 use embassy_executor::Spawner;
-use embassy_stm32::{
-    spi,
-    time::Hertz,
-};
+use embassy_stm32::{spi, time::Hertz};
 use embassy_time::{Duration, Timer};
 use {defmt_rtt as _, panic_probe as _};
 
 pub mod adxl345 {
-    use embassy_stm32::{
-        gpio,
-        spi,
-        time::Hertz,
-        Peripheral,
-    };
+    use embassy_stm32::{Peripheral, gpio, spi, time::Hertz};
 
     pub const READ: u8 = 1 << 7;
     pub const MULTI: u8 = 1 << 6;
@@ -64,7 +56,7 @@ pub mod adxl345 {
     }
 
     impl<'d, T: spi::Instance, Rx: spi::RxDma<T>, Tx: spi::TxDma<T>, NCS: gpio::Pin>
-    Adxl345<'d, T, Rx, Tx, NCS>
+        Adxl345<'d, T, Rx, Tx, NCS>
     {
         pub fn new(
             spi: impl Peripheral<P = T> + 'd,
@@ -151,17 +143,25 @@ async fn main(_spawner: Spawner) {
 
     Timer::after(Duration::from_micros(1)).await;
 
-    unwrap!(accel.write_single(adxl345::register::POWER_CTL, {
-        use adxl345::power_ctl::*;
-        MEASURE | SLEEP | WAKEUP_8HZ
-    }).await);
+    unwrap!(
+        accel
+            .write_single(adxl345::register::POWER_CTL, {
+                use adxl345::power_ctl::*;
+                MEASURE | SLEEP | WAKEUP_8HZ
+            })
+            .await
+    );
 
     Timer::after(Duration::from_micros(1)).await;
 
-    unwrap!(accel.write_single(adxl345::register::DATA_FORMAT, {
-        use adxl345::data_format::*;
-        FULL_RES | RANGE_2G
-    }).await);
+    unwrap!(
+        accel
+            .write_single(adxl345::register::DATA_FORMAT, {
+                use adxl345::data_format::*;
+                FULL_RES | RANGE_2G
+            })
+            .await
+    );
 
     Timer::after(Duration::from_micros(1)).await;
 
@@ -173,8 +173,15 @@ async fn main(_spawner: Spawner) {
 
         // with FULL_RES, the acceleration is in 4milli-g steps
         // multiply by four for a nice scale
-        let total = isize::isqrt(x*x + y*y + z*z) * 4;
-        info!("Acceleration: ({:04}, {:04}, {:04}) = {}.{:03}g", x, y, z, total/1000, total %1000);
+        let total = isize::isqrt(x * x + y * y + z * z) * 4;
+        info!(
+            "Acceleration: ({:04}, {:04}, {:04}) = {}.{:03}g",
+            x,
+            y,
+            z,
+            total / 1000,
+            total % 1000
+        );
 
         Timer::after(Duration::from_millis(200)).await;
     }

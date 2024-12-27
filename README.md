@@ -41,6 +41,8 @@ These programs work:
   This example has been fixed by [anothersteven2](https://github.com/anotherstevest2/embassy-experiments). See their repo for a more complete example with voltage calibration and temperature reading.
 - **channel**: uses a Channel to communicate between two async tasks. If the receiver interval is larger than the sender interval, this will demonstrate backpressure.
 - **signal**: uses a Signal to communicate between two async tasks. If the receiver interval is larger than the sender interval, this will demonstrate overwriting without backpressure.
+- **spi**: uses SPI (and GPIO) to control an [ADXL345](https://www.analog.com/en/products/adxl345.html) accelerometer (the hardware choice is because I had it laying around).
+  SCLK .. PB3, SDI .. PB5, SDO .. PB4, nCS .. PD6.
 
 These don't:
 
